@@ -33,7 +33,7 @@ PhysicalParameters = {'n0' : 1.9,
                       'kappa_ex' : 50e6*2*np.pi,
                       'Dint' : Dint}
 
-simulation_parameters = {'slow_time' : 1e-6,
+simulation_parameters = {'slow_time' : 1e-7,
                          'detuning_array' : dOm,
                          'noise_level' : 1e-10,
                          'output' : 'map',

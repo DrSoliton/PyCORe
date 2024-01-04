@@ -368,21 +368,32 @@ class Resonator:
         else:
             print ('wrong parameter')  
 
-    def seed_level (self, pump, detuning):
-        f_norm = pump*np.sqrt(1./(hbar*self.w0))*np.sqrt(8*self.g0*self.kappa_ex/self.kappa**3)
-        detuning_norm  = detuning*2/self.kappa
-        stat_roots = np.roots([1, -2*detuning_norm, (detuning_norm**2+1), -abs(f_norm[0])**2])
-        ind_roots = [np.imag(ii)==0 for ii in stat_roots]
-        res_seed = np.zeros_like(f_norm)
-        res_seed[0] = abs(stat_roots[ind_roots])**.5/np.sqrt(2*self.g0/self.kappa)
+    def seed_level (self, pump, detuning, Normalized_Units=False):
+        if Normalized_Units == False:
+            f_norm = pump*np.sqrt(1./(hbar*self.w0))*np.sqrt(8*self.g0*self.kappa_ex/self.kappa**3)
+            detuning_norm  = detuning*2/self.kappa
+            stat_roots = np.roots([1, -2*detuning_norm, (detuning_norm**2+1), -abs(f_norm[0])**2])
+            ind_roots = [np.imag(ii)==0 for ii in stat_roots]
+            res_seed = np.zeros_like(f_norm)
+            res_seed[0] = abs(np.min(stat_roots[ind_roots]))**.5/np.sqrt(2*self.g0/self.kappa)
+        else:
+            f_norm = pump
+            detuning_norm  = detuning
+            stat_roots = np.roots([1, -2*detuning_norm, (detuning_norm**2+1), -abs(f_norm[0])**2])
+            ind_roots = [np.imag(ii)==0 for ii in stat_roots]
+            res_seed = np.zeros_like(f_norm)
+            res_seed[0] = abs(np.min(stat_roots[ind_roots]))**.5
         return res_seed
     
-    def seed_soliton(self, pump, detuning):
+    def seed_soliton(self, pump, detuning, Normalized_Units=False):
         fast_t = np.linspace(-pi,pi,len(pump))*np.sqrt(self.kappa/2/self.D2)
-        f_norm = np.sqrt(pump/(hbar*self.w0))*np.sqrt(8*self.g0*self.kappa_ex/self.kappa**3)
-        detuning_norm  = detuning*2/self.kappa
+        if Normalized_Units == False:
+            f_norm = np.sqrt(pump/(hbar*self.w0))*np.sqrt(8*self.g0*self.kappa_ex/self.kappa**3)
+            detuning_norm  = detuning*2/self.kappa
+        else:
+            f_norm = pump
+            detuning_norm = detuning
         stat_roots = np.roots([1, -2*detuning_norm, (detuning_norm**2+1), -abs(f_norm[0])**2])
-        
         ind_roots = [np.imag(ii)==0 for ii in stat_roots]
         B = np.sqrt(2*detuning_norm)
         return np.fft.fft(np.min(np.abs(stat_roots[ind_roots]))**.5 + B*np.exp(1j*np.arccos(2*B/np.pi/f_norm[0])*2)*np.cosh(B*fast_t)**-1)/np.sqrt(2*self.g0/self.kappa)/len(pump)
@@ -681,7 +692,7 @@ def Plot_Map(map_data, detuning, S=[0],kappa_ex=0,output='field',colormap = 'cub
         x = int(np.floor((ix-detuning.min())/dOm))
         max_val = (abs(map_data[x,:])**2).max()
         plt.suptitle('Chosen detuning '+r'$\zeta_0$'+ '= %f'%ix, fontsize=20)
-        ax.lines.pop(0)
+        # ax.lines.pop(0)
         ax.plot([ix,ix], [-np.pi, np.pi ],'r')
 
         ax2 = plt.subplot2grid((5, 1), (2, 0))            
@@ -736,7 +747,7 @@ def Plot_Map(map_data, detuning, S=[0],kappa_ex=0,output='field',colormap = 'cub
         x = 0
     max_val = (abs(map_data[x,:])**2).max()
     plt.suptitle('Chosen detuning '+r'$\zeta_0$'+ '= %f km'%ix, fontsize=20)
-    ax.lines.pop(0)
+    # ax.lines.pop(0)
     
     ax.plot([ix,ix], [-np.pi, np.pi ],'r')
     
